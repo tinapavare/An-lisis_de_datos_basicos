@@ -1,0 +1,70 @@
+-- Consulta 1: Todos los productos disponibles y sus precios
+
+SELECT id, nombre, precio 
+FROM Productos;
+
+solucion de la consulta 1
+
+id,nombre,precio
+1,"Nike Air Max",129.99
+2,"Oxford Classic Negro",89.99
+3,"Loafers Casual",59.99
+4,"Adidas Running Pro",119.99
+5,"Sandalias de Playa",29.99
+6,"Mocasines de Cuero",79.99
+
+
+-- Consulta 2: Productos que cuestan más de $100
+
+SELECT id, nombre, precio 
+FROM Productos 
+WHERE precio > 100
+ORDER BY precio;
+
+
+ solucion de la consulta
+
+id,nombre,precio
+4,"Adidas Running Pro",119.99
+1,"Nike Air Max",129.99
+
+
+-- Consulta 3: Productos que pertenecen a cada categoría (JOIN)
+
+SELECT c.nombre AS categoria, p.nombre AS producto, p.precio
+FROM Categorias c
+JOIN Productos_Categorias pc ON c.id = pc.categoria_id
+JOIN Productos p ON p.id = pc.producto_id
+ORDER BY c.nombre, p.nombre;
+
+solucion consulta 3
+
+categoria,producto,precio
+Casuales,"Loafers Casual",59.99
+Casuales,"Mocasines de Cuero",79.99
+Deportivos,"Adidas Running Pro",119.99
+Deportivos,"Nike Air Max",129.99
+Formales,"Mocasines de Cuero",79.99
+Formales,"Oxford Classic Negro",89.99
+Sandalias,"Sandalias de Playa",29.99
+
+
+-- Consulta 4: Todas las categorías, incluso las que no tienen productos (LEFT JOIN)
+
+SELECT c.nombre AS categoria, p.nombre AS producto
+FROM Categorias c
+LEFT JOIN Productos_Categorias pc ON c.id = pc.categoria_id
+LEFT JOIN Productos p ON p.id = pc.producto_id
+ORDER BY c.nombre, p.nombre;
+
+Solucion consulta 4
+
+categoria,producto
+Botas de Invierno,NULL
+Casuales,"Loafers Casual"
+Casuales,"Mocasines de Cuero"
+Deportivos,"Adidas Running Pro"
+Deportivos,"Nike Air Max"
+Formales,"Mocasines de Cuero"
+Formales,"Oxford Classic Negro"
+Sandalias,"Sandalias de Playa"
