@@ -1,0 +1,134 @@
+Tina Paola Varela Mónzon 
+taller 2 NoSQL
+
+// Parte 1: Consultas Básicas
+
+// 1. Encuentra todos los Pokémon de tipo "Electric"
+
+
+db.Pokemones.aggregate([
+  { $match: { Type1: "Electric" } }
+]);
+
+// 2. Muestra solo los nombres y el ataque de los Pokémon con más de 100 de ataque
+
+db.Pokemones.find(
+  { "Attack": { $gt: 100 } },
+  { "Name": 1, "Attack": 1, "_id": 0 }
+);
+
+// 3. Encuentra los Pokémon cuya defensa esté entre 80 y 100 (inclusive)
+
+db.Pokemones.find(
+  { "Defense": { $gte: 80, $lte: 100 } }
+);
+
+// Parte 2: Agregaciones
+
+// 4. Muestra el promedio de ataque de los Pokémon por tipo (Type1)
+
+db.Pokemones.aggregate([
+  {
+    $group: {
+      _id: "$Type1",
+      promedioAtaque: { $avg: "$Attack" }
+    }
+  }
+]);
+
+
+// 5. Encuentra el Pokémon con más HP de cada tipo
+
+db.Pokemones.aggregate([
+  {
+    $sort: { HP: -1 }
+  },
+  {
+    $group: {
+      _id: "$Type1",
+      pokemonConMasHP: { $first: "$$ROOT" }
+    }
+  },
+  {
+    $project: {
+      tipo: "$_id",
+      nombre: "$pokemonConMasHP.Name",
+      hp: "$pokemonConMasHP.HP",
+      _id: 0
+    }
+  }
+]);
+
+// 6. Muestra los 5 Pokémon más rápidos
+
+db.Pokemones.find().sort({ "Speed": -1 }).limit(5);
+
+
+// Parte 3: Combinaciones de $match, $group y $sort
+
+
+// 7. Muestra el promedio de ataque de los Pokémon tipo "Water" ordenado de mayor a menor
+
+db.Pokemones.aggregate([
+  {
+    $match: { "Type1": "Water" }
+  },
+  {
+    $group: {
+      _id: null,
+      promedioAtaque: { $avg: "$Attack" }
+    }
+  },
+  {
+    $sort: { promedioAtaque: -1 }
+  }
+]);
+
+
+// 8. Encuentra el Pokémon con más ataque por generación y ordénalos de mayor a menor
+
+db.Pokemones.aggregate([
+  {
+    $sort: { "Attack": -1 }
+  },
+  {
+    $group: {
+      _id: "$Generation",
+      pokemonConMasAtaque: { $first: "$$ROOT" }
+    }
+  },
+  {
+    $project: {
+      generacion: "$_id",
+      nombre: "$pokemonConMasAtaque.Name",
+      ataque: "$pokemonConMasAtaque.Attack",
+      _id: 0
+    }
+  },
+  {
+    $sort: { ataque: -1 }
+  }
+]);
+
+
+// Parte 4: Indexación y Rendimiento
+
+// 9. Crea un índice en el campo Type1
+
+db.Pokemones.createIndex({ "Type1": 1 });
+
+// 10. Usa explain() para analizar el rendimiento de una búsqueda
+
+db.Pokemones.find({ "Type1": "Fire" }).explain("executionStats");
+
+// 11. Crea un índice compuesto en Type1 y Speed, y analiza una búsqueda
+
+// Creamos el índice compuesto
+
+db.Pokemones.createIndex({ "Type1": 1, "Speed": -1 });
+
+// Analizamos la búsqueda
+
+db.Pokemones.find(
+  { "Type1": "Water", "Speed": { $gt: 80 } }
+).explain("executionStats");
